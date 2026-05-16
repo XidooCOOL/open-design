@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>多店铺管理中心 · 电商运营平台</title>
+  <style>
+    :root {
+      --void: #000000;
+      --deep-teal: #02090A;
+      --dark-forest: #061A1C;
+      --forest: #102620;
+      --dark-border: #1E2C31;
+      --white: #FFFFFF;
+      --muted: #A1A1AA;
+      --shade-50: #71717A;
+      --shade-70: #3F3F46;
+      --neon-green: #36F4A4;
+      --aloe: #C1FBD4;
+      --pistachio: #D4F9E0;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body { 
+      margin: 0; 
+      background: var(--void); 
+      color: var(--white); 
+      font-family: -apple-system, system-ui, -system-ui, Helvetica, Arial, sans-serif;
+      display: grid; 
+      grid-template-columns: 260px 1fr; 
+      min-height: 100vh;
+    }
+    
+    /* Sidebar */
+    .sidebar { 
+      background: var(--deep-teal); 
+      border-right: 1px solid var(--dark-border); 
+      padding: 16px 0;
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+    .brand { 
+      font-weight: 600; 
+      padding: 12px 18px 20px;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .brand .dot {
+      width: 10px;
+      height: 10px;
+      background: var(--neon-green);
+      border-radius: 50%;
+    }
+    .nav { display: flex; flex-direction: column; gap: 2px; }
+    .nav a { 
+      padding: 10px 18px; 
+      border-radius: 6px; 
+      color: var(--muted); 
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 150ms ease;
+    }
+    .nav a.active { 
+      background: var(--forest); 
+      color: var(--white);
+      font-weight: 500;
+    }
+    .nav a:hover { background: var(--dark-forest); color: var(--white); }
+    .nav .group-label { 
+      font-size: 11px; 
+      color: var(--shade-50); 
+      padding: 16px 18px 6px; 
+      text-transform: uppercase; 
+      letter-spacing: 0.08em;
+    }
+    
+    /* Store selector */
+    .store-selector {
+      margin: 12px 12px 0;
+      padding: 10px 12px;
+      background: var(--dark-forest);
+      border: 1px solid var(--dark-border);
+      border-radius: 8px;
+    }
+    .store-selector label {
+      font-size: 11px;
+      color: var(--shade-50);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      display: block;
+      margin-bottom: 6px;
+    }
+    .store-selector select {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: var(--white);
+      font-size: 14px;
+      font-weight: 500;
+      outline: none;
+      cursor: pointer;
+    }
+    
+    /* Main */
+    main { 
+      padding: 0 28px 56px;
+      overflow-y: auto;
+    }
+    .topbar { 
+      padding: 18px 0; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      border-bottom: 1px solid var(--dark-border); 
+      margin-bottom: 24px;
+      position: sticky;
+      top: 0;
+      background: var(--void);
+      z-index: 10;
+    }
+    .topbar h1 { 
+      font-size: 24px; 
+      margin: 0; 
+      letter-spacing: -0.02em;
+      font-weight: 500;
+    }
+    .topbar .right { 
+      display: flex; 
+      align-items: center; 
+      gap: 12px;
+    }
+    .search {
+      background: var(--dark-forest);
+      border: 1px solid var(--dark-border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--white);
+      font-size: 14px;
+      width: 240px;
+      outline: none;
+    }
+    .search:focus {
+      border-color: var(--neon-green);
+    }
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--forest);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    /* Buttons */
+    button { 
+      font: inherit; 
+      cursor: pointer; 
+      padding: 10px 18px; 
+      border-radius: 9999px;
+      transition: all 150ms ease;
+    }
+    .btn-primary { 
+      background: var(--white); 
+      color: var(--void); 
+      border: none;
+      font-weight: 500;
+    }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-secondary { 
+      background: transparent; 
+      color: var(--white); 
+      border: 1px solid var(--shade-70);
+    }
+    .btn-secondary:hover { border-color: var(--muted); }
+    .btn-icon {
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      border-radius: 8px;
+      background: transparent;
+      border: 1px solid var(--shade-70);
+      color: var(--muted);
+    }
+    .btn-icon:hover { border-color: var(--muted); color: var(--white); }
+    
+    /* KPIs */
+    .kpis { 
+      display: grid; 
+      grid-template-columns: repeat(4, 1fr); 
+      gap: 16px; 
+      margin-bottom: 28px;
+    }
+    @media (max-width: 1100px) { .kpis { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px) { .kpis { grid-template-columns: 1fr; } }
+    .kpi { 
+      background: var(--deep-teal); 
+      border: 1px solid var(--dark-border); 
+      border-radius: 10px; 
+      padding: 18px;
+      box-shadow: 
+        rgba(0,0,0,0.1) 0px 0px 0px 1px,
+        rgba(0,0,0,0.1) 0px 2px 2px,
+        rgba(0,0,0,0.1) 0px 4px 4px,
+        rgba(0,0,0,0.1) 0px 8px 8px,
+        inset 0 1px 0 rgba(255,255,255,0.03);
+    }
+    .kpi .label { 
+      font-size: 12px; 
+      color: var(--muted); 
+      text-transform: uppercase; 
+      letter-spacing: 0.06em; 
+      margin-bottom: 8px;
+    }
+    .kpi .value { 
+      font-size: 32px; 
+      letter-spacing: -0.02em;
+      font-weight: 600;
+    }
+    .kpi .delta { 
+      font-size: 12px; 
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .kpi .delta.up { color: var(--success); }
+    .kpi .delta.down { color: var(--danger); }
+    
+    /* Panels */
+    .panel { 
+      background: var(--deep-teal); 
+      border: 1px solid var(--dark-border); 
+      border-radius: 10px; 
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 
+        rgba(0,0,0,0.1) 0px 0px 0px 1px,
+        rgba(0,0,0,0.1) 0px 2px 2px,
+        rgba(0,0,0,0.1) 0px 4px 4px,
+        rgba(0,0,0,0.1) 0px 8px 8px,
+        inset 0 1px 0 rgba(255,255,255,0.03);
+    }
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .panel-header h3 { 
+      margin: 0; 
+      font-size: 14px; 
+      font-weight: 500;
+      letter-spacing: -0.01em;
+    }
+    .panel-tabs {
+      display: flex;
+      gap: 4px;
+    }
+    .panel-tabs button {
+      padding: 6px 12px;
+      font-size: 13px;
+      border-radius: 6px;
+      background: transparent;
+      border: none;
+      color: var(--muted);
+    }
+    .panel-tabs button.active {
+      background: var(--forest);
+      color: var(--white);
+    }
+    .panel-tabs button:hover {
+      color: var(--white);
+    }
+    
+    .panels-row { 
+      display: grid; 
+      grid-template-columns: 2fr 1fr; 
+      gap: 16px;
+    }
+    @media (max-width: 1100px) { .panels-row { grid-template-columns: 1fr; } }
+    
+    /* Charts */
+    .chart { 
+      height: 260px; 
+      position: relative; 
+      overflow: hidden;
+      background: linear-gradient(180deg, rgba(54,244,164,0.04), transparent);
+    }
+    .chart svg { 
+      width: 100%; 
+      height: 100%; 
+      display: block;
+    }
+    .chart-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 12px;
+      font-size: 11px;
+      color: var(--shade-50);
+      padding: 0 4px;
+    }
+    
+    /* Tasks */
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .task {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--shade-70);
+    }
+    .task:last-child { border-bottom: none; }
+    .task-checkbox {
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--shade-70);
+      border-radius: 4px;
+      flex-shrink: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 150ms ease;
+    }
+    .task.done .task-checkbox {
+      background: var(--neon-green);
+      border-color: var(--neon-green);
+    }
+    .task-content {
+      flex: 1;
+    }
+    .task-title {
+      font-size: 14px;
+      margin-bottom: 2px;
+    }
+    .task.done .task-title {
+      color: var(--shade-50);
+      text-decoration: line-through;
+    }
+    .task-meta {
+      font-size: 12px;
+      color: var(--shade-50);
+    }
+    .task-priority {
+      padding: 3px 8px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .task-priority.high {
+      background: rgba(239,68,68,0.15);
+      color: var(--danger);
+    }
+    .task-priority.medium {
+      background: rgba(245,158,11,0.15);
+      color: var(--warning);
+    }
+    .task-priority.low {
+      background: rgba(34,197,94,0.15);
+      color: var(--success);
+    }
+    
+    /* Stores table */
+    table { width: 100%; border-collapse: collapse; }
+    th, td { 
+      text-align: left; 
+      padding: 12px 8px; 
+    }
+    th { 
+      font-size: 11px; 
+      color: var(--shade-50); 
+      text-transform: uppercase; 
+      letter-spacing: 0.06em; 
+      font-weight: 500;
+      border-bottom: 1px solid var(--dark-border);
+    }
+    td { border-bottom: 1px solid var(--shade-70); font-size: 14px; }
+    tr:hover td { background: var(--dark-forest); }
+    
+    .store-cell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .store-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      background: var(--forest);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .store-name {
+      font-weight: 500;
+    }
+    .store-domain {
+      font-size: 12px;
+      color: var(--shade-50);
+    }
+    
+    .status-pill { 
+      display: inline-flex; 
+      align-items: center;
+      gap: 5px;
+      font-size: 12px; 
+      padding: 4px 10px; 
+      border-radius: 9999px; 
+      background: rgba(255,255,255,0.06); 
+    }
+    .status-pill.active { 
+      color: var(--success); 
+      background: rgba(34,197,94,0.1);
+    }
+    .status-pill.dot::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+    
+    .progress-bar {
+      height: 6px;
+      background: var(--shade-70);
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--neon-green);
+      border-radius: 9999px;
+      transition: width 300ms ease;
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar" data-od-id="sidebar">
+    <div class="brand"><span class="dot"></span> CommerceHub</div>
+    
+    <div class="store-selector">
+      <label>选择店铺</label>
+      <select>
+        <option>全部店铺</option>
+        <option>潮流服饰旗舰店</option>
+        <option>数码电子专营店</option>
+        <option>家居生活馆</option>
+        <option>美妆护肤店</option>
+      </select>
+    </div>
+    
+    <nav class="nav">
+      <span class="group-label">数据中心</span>
+      <a href="#" class="active">数据概览</a>
+      <a href="#">销售分析</a>
+      <a href="#">商品分析</a>
+      <a href="#">流量分析</a>
+      <a href="#">用户分析</a>
+      
+      <span class="group-label">运营管理</span>
+      <a href="#">订单管理</a>
+      <a href="#">商品管理</a>
+      <a href="#">用户管理</a>
+      <a href="#">营销活动</a>
+      <a href="#">内容运营</a>
+      
+      <span class="group-label">店铺管理</span>
+      <a href="#">店铺列表</a>
+      <a href="#">装修设计</a>
+      <a href="#">设置</a>
+    </nav>
+  </aside>
+  
+  <main>
+    <div class="topbar" data-od-id="topbar">
+      <h1>数据概览</h1>
+      <div class="right">
+        <button class="btn-secondary">今日 ▾</button>
+        <input type="text" class="search" placeholder="搜索..." />
+        <button class="btn-icon">⚙</button>
+        <div class="avatar">张</div>
+      </div>
+    </div>
+
+    <div class="kpis" data-od-id="kpis">
+      <div class="kpi">
+        <div class="label">总交易额</div>
+        <div class="value">¥2,847,392</div>
+        <div class="delta up">▲ +18.3% 较昨日</div>
+      </div>
+      <div class="kpi">
+        <div class="label">总订单量</div>
+        <div class="value">12,847</div>
+        <div class="delta up">▲ +12.6% 较昨日</div>
+      </div>
+      <div class="kpi">
+        <div class="label">访客数</div>
+        <div class="value">89,234</div>
+        <div class="delta up">▲ +8.2% 较昨日</div>
+      </div>
+      <div class="kpi">
+        <div class="label">转化率</div>
+        <div class="value">14.4%</div>
+        <div class="delta down">▼ -0.8 pp</div>
+      </div>
+    </div>
+
+    <div class="panels-row">
+      <div class="panel" data-od-id="sales-chart">
+        <div class="panel-header">
+          <h3>销售趋势 · 近7天</h3>
+          <div class="panel-tabs">
+            <button class="active">交易额</button>
+            <button>订单量</button>
+            <button>访客数</button>
+          </div>
+        </div>
+        <div class="chart">
+          <svg viewBox="0 0 700 260" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#36F4A4" stop-opacity="0.15" />
+                <stop offset="100%" stop-color="#36F4A4" stop-opacity="0" />
+              </linearGradient>
+            </defs>
+            <polyline fill="url(#areaFill)" stroke="none" points="0,180 50,170 100,140 150,150 200,110 250,90 300,100 350,70 400,60 450,80 500,50 550,40 600,50 650,30 700,20 700,260 0,260" />
+            <polyline fill="none" stroke="#36F4A4" stroke-width="3" points="0,180 50,170 100,140 150,150 200,110 250,90 300,100 350,70 400,60 450,80 500,50 550,40 600,50 650,30 700,20" />
+          </svg>
+        </div>
+        <div class="chart-labels">
+          <span>周一</span>
+          <span>周二</span>
+          <span>周三</span>
+          <span>周四</span>
+          <span>周五</span>
+          <span>周六</span>
+          <span>周日</span>
+        </div>
+      </div>
+      
+      <div class="panel" data-od-id="tasks">
+        <div class="panel-header">
+          <h3>待办任务</h3>
+          <button class="btn-secondary" style="padding: 6px 12px; font-size: 13px; border-radius: 6px;">+ 新建</button>
+        </div>
+        <div class="task-list">
+          <div class="task">
+            <div class="task-checkbox"></div>
+            <div class="task-content">
+              <div class="task-title">处理待发货订单 (128)</div>
+              <div class="task-meta">截止时间: 今天 18:00</div>
+            </div>
+            <span class="task-priority high">紧急</span>
+          </div>
+          <div class="task">
+            <div class="task-checkbox"></div>
+            <div class="task-content">
+              <div class="task-title">更新「618大促」活动页面</div>
+              <div class="task-meta">截止时间: 明天 12:00</div>
+            </div>
+            <span class="task-priority medium">中</span>
+          </div>
+          <div class="task done">
+            <div class="task-checkbox">✓</div>
+            <div class="task-content">
+              <div class="task-title">核对昨日财务数据</div>
+              <div class="task-meta">完成于 10:23</div>
+            </div>
+            <span class="task-priority low">低</span>
+          </div>
+          <div class="task">
+            <div class="task-checkbox"></div>
+            <div class="task-content">
+              <div class="task-title">上架新品 SKU (24)</div>
+              <div class="task-meta">截止时间: 周三</div>
+            </div>
+            <span class="task-priority medium">中</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" data-od-id="stores">
+      <div class="panel-header">
+        <h3>店铺列表</h3>
+        <button class="btn-primary">+ 添加店铺</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>店铺</th>
+            <th>今日交易额</th>
+            <th>订单量</th>
+            <th>健康度</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div class="store-cell">
+                <div class="store-logo" style="background: linear-gradient(135deg, #36F4A4, #10B981);">潮</div>
+                <div>
+                  <div class="store-name">潮流服饰旗舰店</div>
+                  <div class="store-domain">fashion.example.com</div>
+                </div>
+              </div>
+            </td>
+            <td>¥1,234,567</td>
+            <td>5,847</td>
+            <td style="width: 140px;">
+              <div class="progress-bar"><div class="progress-fill" style="width: 88%;"></div></div>
+              <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">88%</div>
+            </td>
+            <td><span class="status-pill active dot">运营中</span></td>
+            <td><button class="btn-icon" style="width: 30px; height: 30px;">⋮</button></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="store-cell">
+                <div class="store-logo" style="background: linear-gradient(135deg, #6366F1, #8B5CF6);">数</div>
+                <div>
+                  <div class="store-name">数码电子专营店</div>
+                  <div class="store-domain">digital.example.com</div>
+                </div>
+              </div>
+            </td>
+            <td>¥874,234</td>
+            <td>3,421</td>
+            <td style="width: 140px;">
+              <div class="progress-bar"><div class="progress-fill" style="width: 92%;"></div></div>
+              <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">92%</div>
+            </td>
+            <td><span class="status-pill active dot">运营中</span></td>
+            <td><button class="btn-icon" style="width: 30px; height: 30px;">⋮</button></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="store-cell">
+                <div class="store-logo" style="background: linear-gradient(135deg, #F59E0B, #F97316);">家</div>
+                <div>
+                  <div class="store-name">家居生活馆</div>
+                  <div class="store-domain">home.example.com</div>
+                </div>
+              </div>
+            </td>
+            <td>¥523,456</td>
+            <td>2,184</td>
+            <td style="width: 140px;">
+              <div class="progress-bar"><div class="progress-fill" style="width: 76%;"></div></div>
+              <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">76%</div>
+            </td>
+            <td><span class="status-pill active dot">运营中</span></td>
+            <td><button class="btn-icon" style="width: 30px; height: 30px;">⋮</button></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="store-cell">
+                <div class="store-logo" style="background: linear-gradient(135deg, #EC4899, #F472B6);">美</div>
+                <div>
+                  <div class="store-name">美妆护肤店</div>
+                  <div class="store-domain">beauty.example.com</div>
+                </div>
+              </div>
+            </td>
+            <td>¥215,135</td>
+            <td>1,395</td>
+            <td style="width: 140px;">
+              <div class="progress-bar"><div class="progress-fill" style="width: 84%;"></div></div>
+              <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">84%</div>
+            </td>
+            <td><span class="status-pill active dot">运营中</span></td>
+            <td><button class="btn-icon" style="width: 30px; height: 30px;">⋮</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</body>
+</html>
